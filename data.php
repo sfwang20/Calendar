@@ -1,8 +1,9 @@
 <?php
-include ('../db.php');
 session_start();
+
+include ('../db.php');
 try {
-    $pdo = new PDO ("mysql:host=$db[host]; dbname=$db[dbname]; port=$db[port]; 
+    $pdo = new PDO ("mysql:host=$db[host]; dbname=$db[dbname]; port=$db[port];
     charset=$db[charset]",$db['username'],$db['password']);
 } catch(PDOException $e) {
     echo "Database Connection failed.";
@@ -14,7 +15,7 @@ $year = date('Y');
 $month = date('m');
 
 //load events
-$sql = 'SELECT * FROM events WHERE year=:year AND month=:month 
+$sql = 'SELECT * FROM events WHERE year=:year AND month=:month
         AND user_id=:user_id ORDER BY `date`, start_time ASC' ;
 $statement = $pdo->prepare($sql);
 $statement->bindValue(':year', $year, PDO::PARAM_INT);
@@ -36,7 +37,8 @@ $firstDateOfTheMonth = new DateTime("$year-$month-1");
 //最後一天是星期幾
 $lastDateOfTheMonth = new DateTime("$year-$month-$days");
 //calendar要填的padiing
-$frontPadding = $firstDateOfTheMonth->format('w');  //0-6
+//format('w') will return numeric representation of the day of the week
+$frontPadding = $firstDateOfTheMonth->format('w');  //0-6, 0 for Sunday
 $backPadding = 6 - $lastDateOfTheMonth->format('w');
 
 for ($i=0; $i < $frontPadding; $i++) {    //填前面的padiing
@@ -51,6 +53,10 @@ for ($i=0; $i < $backPadding; $i++) {     //填後面的padiing
 
 ?>
 
+<script>
+    var events = <?= json_encode($events, JSON_NUMERIC_CHECK) ?>;
+</script>
+
 <!-- $dates =[];
 for ($i=1; $i<=31; $i++) {
     $dates[] = $i;
@@ -61,7 +67,3 @@ $dates[] = null;
 $dates[] = null;
 $dates[] = null;
 ?> -->
-
-<script>
-    var events = <?= json_encode($events, JSON_NUMERIC_CHECK) ?>;
-</script>
