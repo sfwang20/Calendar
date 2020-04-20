@@ -34,8 +34,8 @@ $(document).ready(function(){
             panel.init(isNew, e);
             panel.hideError();
             $(panel.el).addClass('open').css({       //panel.el等同#info-panel
-                top: e.pageY+'px',
-                left: e.pageX+'px',
+                top: '200px',
+                left: '570px',
             }).find('.title [type]').focus();   //[]是找屬性
         },
         close: function() {
@@ -103,7 +103,7 @@ $(document).ready(function(){
            }
         //collect data
         var data = $(panel.el).find('form').serialize();   //一坨字串 網址?後面的 一次蒐集所有input資料
-        
+
         $.post(action, data)
             .done(function (data, textStatus, jqXHR) {
                 if ($(e.currentTarget).is('.update'))
