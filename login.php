@@ -1,6 +1,11 @@
 <?php
-include ('../db.php');
+session_start();
+if ($_SESSION["loggedin"] == true) {
+  header("location: index.php");
+  exit;
+}
 
+include ('../db.php');
 try {
     $pdo = new PDO("mysql:host=$db[host];dbname=$db[dbname];port=$db[port];
     charset=$db[charset]", $db['username'], $db['password']);
@@ -9,26 +14,24 @@ try {
     exit;
 }
 
-session_start();
-
 $username = $password = "";
 $username_err = $password_err = "";
- 
+
 // Processing form data when form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST"){
- 
+
     if (empty(trim($_POST["username"]))){
         $username_err = "Please enter username.";
     } else {
         $username = trim($_POST["username"]);
     }
-    
+
     if (empty(trim($_POST["password"]))){
         $password_err = "Please enter your password.";
     } else {
         $password = trim($_POST["password"]);
     }
-    
+
     // Validate credentials
     if(empty($username_err) && empty($password_err)){
 
@@ -39,12 +42,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST"){
         $user = $statement -> fetch(PDO::FETCH_ASSOC);
         if ($result) {
             if ($user["password"] == $_POST["password"]) {
-                session_start();            
                 // Store data in session variables
                 $_SESSION["loggedin"] = true;
                 $_SESSION["id"] = $user['id'];
-                $_SESSION["username"] = $user['username'];    
-                                        
+                $_SESSION["username"] = $user['username'];
+
                 // Redirect user to index page
                 header("location:index.php");
             } else {
@@ -57,7 +59,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST"){
   }
 ?>
 
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -65,7 +67,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST"){
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.css">
     <style type="text/css">
         body{ font: 14px sans-serif; }
-        .wrapper{ width: 350px; padding: 20px; }
+        .wrapper{ width: 350px; padding: 20px; margin:0 auto; position: relative; top:80px;}
     </style>
 </head>
 <body>
@@ -73,12 +75,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST"){
         <h2>Login</h2>
         <p>Please fill in your credentials to login.</p>
         <form action="login.php" method="post">
-            <div class="form-group <?php echo (!empty($username_err)) ? 'has-error' : ''; ?>">
+            <div class="form-group">
                 <label>Username</label>
-                <input type="text" name="username" class="form-control" value="<?php echo $username; ?>">
+                <input type="text" name="username" class="form-control" value="">
                 <span class="help-block"><?php echo $username_err; ?></span>
-            </div>    
-            <div class="form-group <?php echo (!empty($password_err)) ? 'has-error' : ''; ?>">
+            </div>
+            <div class="form-group">
                 <label>Password</label>
                 <input type="password" name="password" class="form-control">
                 <span class="help-block"><?php echo $password_err; ?></span>
@@ -88,6 +90,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST"){
             </div>
             <p>Don't have an account? <a href="register.php">Sign up now</a>.</p>
         </form>
-    </div>    
+    </div>
 </body>
 </html>
